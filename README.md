@@ -65,3 +65,61 @@ This additionally exports the Godot `.pck` asset bundle using Godot in headless 
 - **Line update** - if animation is enabled, recalculates the gradient on every new point added so the color crawls forward as the line grows.
 
 [GradientUtil.cs](GradientLineCode/GradientUtil.cs) handles gradient construction.
+
+## Contributing New Gradient Presets
+
+Adding a new built-in preset requires changes to three places in [GradientUtil.cs](GradientLineCode/GradientUtil.cs):
+
+### 1. Add the preset to the `GradientType` enum
+
+```csharp
+public enum GradientType
+{
+    Rainbow,
+    Fire,
+    // ...
+    YourPreset,  // add here (before Custom)
+    Custom
+}
+```
+
+### 2. Define the color keyframes
+
+Making the last color identical to the first is recommended because a mismatch between the end and start colors creates a visible hard jump as the hue cycles.
+
+```csharp
+static readonly Color[] YourPresetColors =
+[
+    new Color(r, g, b),
+    new Color(r, g, b),
+    // ...
+    new Color(r, g, b)  // repeat first color to loop
+];
+```
+
+### 3. Wire it up in `BuildGradient`
+
+Add a case to the switch expression:
+
+```csharp
+public static Gradient BuildGradient(float hueOffset)
+{
+    return Config.GradientType switch
+    {
+        // ...
+        GradientType.YourPreset => BuildKeyframeGradient(hueOffset, YourPresetColors),
+        // ...
+    };
+}
+```
+
+### 4. Add a localization string
+
+Add a display name for the preset in [GradientLine/localization/eng/settings_ui.json](GradientLine/localization/eng/settings_ui.json):
+
+```json
+"GRADIENTLINE-GRADIENT_TYPE-YOUR_PRESET.title": "Your Preset Name"
+```
+
+The key format is `GRADIENTLINE-GRADIENT_TYPE-<ENUM_NAME_UPPERCASE>.title`.
+
