@@ -112,14 +112,3 @@ public static Gradient BuildGradient(float hueOffset)
     };
 }
 ```
-
-### 4. Add a localization string
-
-Add a display name for the preset in [GradientLine/localization/eng/settings_ui.json](GradientLine/localization/eng/settings_ui.json):
-
-```json
-"GRADIENTLINE-GRADIENT_TYPE-YOUR_PRESET.title": "Your Preset Name"
-```
-
-The key format is `GRADIENTLINE-GRADIENT_TYPE-<ENUM_NAME_UPPERCASE>.title`.
-
