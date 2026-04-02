@@ -4,8 +4,8 @@ namespace GradientLine.GradientLineCode;
 
 public partial class GradientPreviewControl : Control
 {
-    private Gradient Gradient;
-    private float Thickness = 12f;
+    private Gradient? Gradient;
+    private float _thickness = 12f;
     private GradientTexture2D _cachedTexture;
 
     public override void _Draw()
@@ -25,7 +25,7 @@ public partial class GradientPreviewControl : Control
         {
             Gradient = g,
             Width = 256,
-            Height = (int)Thickness
+            Height = (int)_thickness
         };
 
         QueueRedraw();
