@@ -1,4 +1,5 @@
-﻿using BaseLib.Config;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using BaseLib.Config;
 using Godot;
 
 namespace GradientLine.GradientLineCode;
@@ -13,11 +14,14 @@ public class Config : SimpleModConfig
     public static double AnimateSpeed { get; set; } = 120f;
     [ConfigTextInput("^((#[0-9A-Fa-f]{6})){1,10}$", MaxLength = 70)]
     
+    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Custom)]
     public static string CustomColors { get; set; } = "";
 
+    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
     [SliderRange(2, 10)]
     public static double RandomGradientSize { get; set; } = 5;
 
+    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
     [ConfigButton("RerollRandom")]
     public void RerollRandom()
     {
