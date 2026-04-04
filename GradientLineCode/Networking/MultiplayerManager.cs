@@ -8,8 +8,9 @@ public static class MultiplayerManager
     private static INetGameService? _netGameService;
     private static ulong _localPlayerId;
     
-    private static readonly Dictionary<ulong, GradientUtil.GradientType> _playerGradients = new();
+    private static readonly Dictionary<ulong, GradientUtil.GradientType> _playerGradientTypes = new();
     private static readonly Dictionary<ulong, float> _currentLineHues = new();
+    private static readonly Dictionary<ulong, Gradient> _playerGradients = new(); // currently only used for sending generated random gradients
     
     public static ulong LocalPlayerId => _localPlayerId;
     
@@ -17,21 +18,44 @@ public static class MultiplayerManager
     {
         _netGameService = netGameService;
         _localPlayerId = netGameService.NetId;
-        netGameService.RegisterMessageHandler<GradientMessage>(OnGradientMessageReceived);
+        netGameService.RegisterMessageHandler<GradientTypeMessage>(OnGradientMessageReceived);
         netGameService.RegisterMessageHandler<LineStartMessage>(OnLineStartMessageReceived);
+        netGameService.RegisterMessageHandler<GradientMessage>(OnGradientMessageReceived);
     }
     
-    public static void BroadcastLocalGradient()
+    public static void BroadcastGradientType()
     {
         if (_localPlayerId == 0 || _netGameService == null)
         {
             return;
         }
         
-        var message = new GradientMessage
+        var message = new GradientTypeMessage
         {
             PlayerId = _localPlayerId,
             GradientType = Config.GradientType
+        };
+        
+        _netGameService.SendMessage(message);
+    }
+
+    public static void BroadcastGradient()
+    {
+        if (_localPlayerId == 0 || _netGameService == null)
+        {
+            return;
+        }
+
+        if (Config.GetSavedRandomGradient() is null)
+        {
+            Config.SetSavedRandomGradient(GradientUtil.BuildGradient(GradientUtil.GradientType.Random, Config.GetPreviewHueOffset()));
+        }
+
+        var message = new GradientMessage()
+        {
+            PlayerId = _localPlayerId,
+            Colors = Config.GetSavedRandomGradient()?.Colors,
+            Offsets = Config.GetSavedRandomGradient()?.Offsets
         };
         
         _netGameService.SendMessage(message);
@@ -57,7 +81,7 @@ public static class MultiplayerManager
 
     public static GradientUtil.GradientType GetPlayerGradientType(ulong playerId)
     {
-        return _playerGradients.TryGetValue(playerId, out var type) 
+        return _playerGradientTypes.TryGetValue(playerId, out var type) 
             ? type 
             : GradientUtil.GradientType.Rainbow;
     }
@@ -69,6 +93,13 @@ public static class MultiplayerManager
             : 0f;
     }
     
+    public static Gradient GetPlayerGradient(ulong playerId)
+    {
+        return _playerGradients.TryGetValue(playerId, out var type) 
+            ? type 
+            : GradientUtil.BuildGradient(GradientUtil.GradientType.Rainbow, 0f);
+    }
+    
     public static bool IsLocalPlayer(ulong playerId)
     {
         if (_netGameService == null)
@@ -76,13 +107,18 @@ public static class MultiplayerManager
         return playerId == _localPlayerId;
     }
     
-    private static void OnGradientMessageReceived(GradientMessage message, ulong senderId)
+    private static void OnGradientMessageReceived(GradientTypeMessage typeMessage, ulong senderId)
     {
-        _playerGradients[senderId] = message.GradientType;
+        _playerGradientTypes[senderId] = typeMessage.GradientType;
     }
     
     private static void OnLineStartMessageReceived(LineStartMessage message, ulong senderId)
     {
         _currentLineHues[senderId] = message.StartingHue;
+    }
+    
+    private static void OnGradientMessageReceived(GradientMessage message, ulong senderId)
+    {
+        _playerGradients[senderId] = message.ToGradient();
     }
 }

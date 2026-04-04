@@ -59,24 +59,6 @@ dotnet publish
 
 This additionally exports the Godot `.pck` asset bundle using Godot in headless mode.
 
-## How It Works
-
-### Core Rendering
-[GradientLinePatches.cs](GradientLineCode/GradientLinePatches.cs) applies two Harmony postfix patches to the game's `NMapDrawings` class:
-
-- **Line creation** (`CreateLineForPlayer`) - assigns a gradient with a randomized starting hue to the new `Line2D` node
-- **Line update** (`UpdateCurrentLinePosition`) - if animation is enabled, recalculates the gradient on every new point added so the color shifts as the line grows
-
-### Gradient Generation
-[GradientUtil.cs](GradientLineCode/GradientUtil.cs) handles gradient construction using either:
-- **Rainbow mode**: Procedurally generated HSV color wheel
-- **Keyframe mode**: Interpolation between color keyframes defined in [GradientsPresets.cs](GradientLineCode/GradientsPresets.cs)
-- **Custom mode**: User-defined hex colors from config
-
-### Multiplayer Synchronization
-[MultiplayerManager.cs](GradientLineCode/Networking/MultiplayerManager.cs) coordinates gradient state across clients:
-- **Gradient type sync**: `GradientMessage` broadcasts each player's preset/custom choice when joining or entering the map
-- **Per-line hue sync**: `LineStartMessage` broadcasts the random starting hue whenever a player starts drawing, ensuring all clients render identical gradients
 
 ## Contributing New Gradient Presets
 
@@ -90,7 +72,8 @@ public enum GradientType : ushort
     Rainbow,
     Fire,
     // ...
-    YourPreset,  // add here (before Custom)
+    YourPreset, // add here (before Custom)
+    Random,  
     Custom
 }
 ```
@@ -99,7 +82,7 @@ public enum GradientType : ushort
 
 Making the last color identical to the first is recommended because a mismatch between the end and start colors creates a visible hard
 
-### 3. Wire it up in `BuildGradient` and `BuildSpecificGradient`
+### 3. Wire it up in `BuildGradient`
 
 Add a case to the switch expression:
 

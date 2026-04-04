@@ -20,14 +20,22 @@ public static class NetworkEventPatches
         if (player.id == MultiplayerManager.LocalPlayerId)
             return;
         
-        MultiplayerManager.BroadcastLocalGradient();
+        MultiplayerManager.BroadcastGradientType();
+        if (Config.GradientType == GradientUtil.GradientType.Random)
+        {
+            MultiplayerManager.BroadcastGradient();
+        }
     }
 
     [HarmonyPatch(typeof(NMapScreen), "Initialize")]
     [HarmonyPostfix]
     static void OnMapScreenInitialize(RunState runState)
     {
-        MultiplayerManager.BroadcastLocalGradient();
+        MultiplayerManager.BroadcastGradientType();
+        if (Config.GradientType == GradientUtil.GradientType.Random)
+        {
+            MultiplayerManager.BroadcastGradient();
+        }
     }
 
 

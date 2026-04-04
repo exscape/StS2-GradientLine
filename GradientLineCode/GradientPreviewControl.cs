@@ -4,13 +4,13 @@ namespace GradientLine.GradientLineCode;
 
 public partial class GradientPreviewControl : Control
 {
-    private Gradient? Gradient;
+    private Gradient? _gradient;
     private float _thickness = 12f;
     private GradientTexture2D _cachedTexture;
 
     public override void _Draw()
     {
-        if (Gradient == null)
+        if (_gradient == null)
             return;
 
         DrawTextureRect(_cachedTexture, new Rect2(Vector2.Zero, Size), false);
@@ -18,7 +18,7 @@ public partial class GradientPreviewControl : Control
 
     public void SetGradient(Gradient g)
     {
-        Gradient = g;
+        _gradient = g;
 
         _cachedTexture?.Dispose();
         _cachedTexture = new GradientTexture2D

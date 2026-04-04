@@ -18,19 +18,36 @@ public class GradientLinePatches
             if (__result == null || isErasing) return;
             
             ulong playerId = player.NetId;
-            float startingHue = Config.RandomizeStartOffset ? GD.Randf() : 0f;
+            
+            // If we don't want to randomize the starting offset or are using random gradient type, this returns 0f
+            float startingHue =
+                (Config.RandomizeStartOffset && Config.GradientType != GradientUtil.GradientType.Random)
+                    ? GD.Randf()
+                    : 0f;            
             
             if (MultiplayerManager.IsLocalPlayer(playerId))
             {
-                __result.Gradient = GradientUtil.BuildGradient(startingHue);
+                if (Config.GradientType == GradientUtil.GradientType.Random)
+                    __result.Gradient = Config.GetSavedRandomGradient();
+                
+                else
+                     __result.Gradient = GradientUtil.BuildGradient(Config.GradientType, startingHue);
+                
                 MultiplayerManager.BroadcastLineStart(startingHue);
             }
             else
             {
                 float remoteHue = MultiplayerManager.GetCurrentLineHue(playerId);
-                __result.Gradient = GradientUtil.BuildSpecificGradient(
-                    MultiplayerManager.GetPlayerGradientType(playerId),
-                    remoteHue);
+                GradientUtil.GradientType gradientType = MultiplayerManager.GetPlayerGradientType(playerId);
+
+                if (gradientType == GradientUtil.GradientType.Random)
+                {
+                    __result.Gradient = MultiplayerManager.GetPlayerGradient(playerId);
+                }
+                else
+                {
+                    __result.Gradient = GradientUtil.BuildGradient(gradientType, remoteHue);
+                }
             }
         }
     }
@@ -53,13 +70,19 @@ public class GradientLinePatches
 
             if (MultiplayerManager.IsLocalPlayer(netId))
             {
-                line.Gradient = GradientUtil.BuildGradient(hueOffset);
+                line.Gradient = GradientUtil.BuildGradient(Config.GradientType, hueOffset, Config.GetSavedRandomGradient());
             }
             else
             {
-                line.Gradient = GradientUtil.BuildSpecificGradient(
-                    MultiplayerManager.GetPlayerGradientType(netId),
-                    hueOffset);
+                GradientUtil.GradientType gradientType = MultiplayerManager.GetPlayerGradientType(netId);
+                if (gradientType == GradientUtil.GradientType.Random)
+                {
+                    line.Gradient = GradientUtil.BuildKeyframeFromGradientColors(MultiplayerManager.GetPlayerGradient(netId), hueOffset);
+                }
+                else
+                {
+                    line.Gradient = GradientUtil.BuildGradient(gradientType, hueOffset);
+                }
             }
         }
     }
