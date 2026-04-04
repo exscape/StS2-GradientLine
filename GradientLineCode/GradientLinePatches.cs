@@ -64,10 +64,10 @@ public class GradientLinePatches
             ulong netId = Traverse.Create(state).Field("playerId").GetValue<ulong>();
             var line = Traverse.Create(state).Field("currentlyDrawingLine").GetValue<Line2D>();
             if (!GodotObject.IsInstanceValid(line) || line.Gradient == null) return;
-
+            
             float currentLineHue = MultiplayerManager.GetCurrentLineHue(netId);
-            float hueOffset = currentLineHue + (float)(line.GetPointCount() / Config.AnimateSpeed) % 1f;
-
+            float hueOffset = currentLineHue + (float)(line.GetPointCount() * Config.AnimateSpeed / 5000.0) % 1f;
+            
             if (MultiplayerManager.IsLocalPlayer(netId))
             {
                 line.Gradient = GradientUtil.BuildGradient(Config.GradientType, hueOffset, Config.GetSavedRandomGradient());
