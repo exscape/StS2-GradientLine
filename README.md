@@ -99,8 +99,8 @@ public static Gradient BuildGradient(float hueOffset)
 ```
 
 ## TODO
-- Localization of gradient names
 - Color picker for custom colors
 - Hide custom color row when not selecting custom color
 - Make erasing better
 - Allow gradient to repeat
+- Random gradient for each individual line setting
