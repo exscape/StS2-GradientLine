@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Reflection;
 using BaseLib.Config;
 using Godot;
 
@@ -12,22 +12,48 @@ public class Config : SimpleModConfig
     public static bool RandomizeStartOffset { get; set; } = true;
     [SliderRange(30, 200, 10)]
     public static double AnimateSpeed { get; set; } = 120f;
-    [ConfigTextInput("^((#[0-9A-Fa-f]{6})){1,10}$", MaxLength = 70)]
-    
-    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Custom)]
-    public static string CustomColors { get; set; } = "";
 
-    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
+    [ConfigSection("Custom color section")]
+    [SliderRange(1,5)]
+    [ConfigVisibleIf(nameof(GradientType), GradientUtil.GradientType.Custom)]
+    public static int NumCustomColors  { get; set; } = 5;
+
+    [ConfigVisibleIf(nameof(ShouldShowCustomColorRow))]
+    [ConfigColorPicker(EditAlpha = false)]
+    public static string CustomColor1 { get; set; } = "#0000FF";
+
+    [ConfigVisibleIf(nameof(ShouldShowCustomColorRow))]
+    [ConfigColorPicker(EditAlpha = false)]
+    public static string CustomColor2 { get; set; } = "#00FF00";
+
+    [ConfigVisibleIf(nameof(ShouldShowCustomColorRow))]
+    [ConfigColorPicker(EditAlpha = false)]
+    public static string CustomColor3 { get; set; } = "#FFFF00";
+
+    [ConfigVisibleIf(nameof(ShouldShowCustomColorRow))]
+    [ConfigColorPicker(EditAlpha = false)]
+    public static string CustomColor4 { get; set; } = "#FF0000";
+
+    [ConfigVisibleIf(nameof(ShouldShowCustomColorRow))]
+    [ConfigColorPicker(EditAlpha = false)]
+    public static string CustomColor5 { get; set; } = "#FFFFFF";
+
+    // Lazy, but easy: no need to touch the rest of the code
+    [ConfigHideInUI]
+    public static string CustomColors { get; set; } = string.Concat(CustomColor1, CustomColor2, CustomColor3, CustomColor4, CustomColor5);
+
+    [ConfigSection("Random color section")]
+    [ConfigVisibleIf(nameof(GradientType), GradientUtil.GradientType.Random)]
     [SliderRange(2, 10)]
     public static double RandomGradientSize { get; set; } = 5;
-    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
+    [ConfigVisibleIf(nameof(GradientType), GradientUtil.GradientType.Random)]
     public static bool RandomizeEachLine { get; set; } = false;
     
-    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
+    [ConfigVisibleIf(nameof(GradientType), GradientUtil.GradientType.Random)]
     [SliderRange(0.1, 1, 0.1)]
     public static double Randomness { get; set; } = 1f;
 
-    [ConfigVisibleWhen(nameof(GradientType), GradientUtil.GradientType.Random)]
+    [ConfigVisibleIf(nameof(GradientType), GradientUtil.GradientType.Random)]
     [ConfigButton("RerollRandom")]
     public void RerollRandom()
     {
@@ -64,6 +90,13 @@ public class Config : SimpleModConfig
         AddRestoreDefaultsButton(optionContainer);
     }
 
+    private static bool ShouldShowCustomColorRow(PropertyInfo prop)
+    {
+        var numStr = prop.Name.Replace("CustomColor", "");
+        if (!int.TryParse(numStr, out var num)) return true;
+        return GradientType == GradientUtil.GradientType.Custom && NumCustomColors >= num;
+    }
+
     private GradientPreviewControl AddGradientPreview(Control optionContainer)
     {
         GradientPreviewControl gradientPreview = new GradientPreviewControl();
@@ -78,6 +111,13 @@ public class Config : SimpleModConfig
         {
             if (!GodotObject.IsInstanceValid(gradientPreview) || !gradientPreview.IsInsideTree())
                 return;
+
+            var colorList = new List<string>(5) { CustomColor1 };
+            if (NumCustomColors >= 2) colorList.Add(CustomColor2);
+            if (NumCustomColors >= 3) colorList.Add(CustomColor3);
+            if (NumCustomColors >= 4) colorList.Add(CustomColor4);
+            if (NumCustomColors >= 5) colorList.Add(CustomColor5);
+            CustomColors = string.Join(string.Empty, colorList);
 
             bool gradientChanged = GradientType != _lastGradientType;
             bool randomSizeChanged = RandomGradientSize != _lastRandomGradientSize;
