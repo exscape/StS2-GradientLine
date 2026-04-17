@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using BaseLib.Config;
+﻿using BaseLib.Config;
 using Godot;
 
 namespace GradientLine.GradientLineCode;

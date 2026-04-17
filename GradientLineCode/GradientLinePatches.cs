@@ -1,5 +1,5 @@
-﻿using Godot;
-using GodotPlugins.Game;
+﻿using BaseLib.Utils;
+using Godot;
 using GradientLine.GradientLineCode.Networking;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -168,6 +168,22 @@ public class GradientLinePatches
                 Line = line;
                 IsValid = isValid;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(NMapDrawings), "StopDrawingLine")]
+    public static class WhyAmIDoingItThisWay
+    {
+        [HarmonyPrefix]
+        private static bool StopDrawingLinePatch(NMapDrawings __instance, object state)
+        {
+            var traverse = Traverse.Create(state);
+            var finishedLine = traverse.Field("currentlyDrawingLine").GetValue<Line2D>();
+
+            LineAnimator.LineElapsedTime[finishedLine] = 0f;
+            LineAnimator.BaseLineGradients[finishedLine] = finishedLine.Gradient.Duplicate() as Gradient;
+
+            return true;
         }
     }
 }
