@@ -42,20 +42,23 @@ public class GradientLinePatches
 
         private static void HandleLocalPlayerLine(Line2D line, float startingHue)
         {
-            line.Gradient = GradientUtil.BuildGradient(
-                Config.GradientType, 
-                startingHue, 
-                Config.GetSavedRandomGradient(), 
-                Config.RandomizeEachLine
-            );
-
-            bool isRandomWithReroll = Config.GradientType == GradientUtil.GradientType.Random 
-                                   && Config.RandomizeEachLine;
-            
-            if (isRandomWithReroll)
+            if (Config.GradientType != GradientUtil.GradientType.None)
             {
-                Config.SetSavedRandomGradient(line.Gradient);
-                MultiplayerManager.BroadcastGradient();
+                line.Gradient = GradientUtil.BuildGradient(
+                    Config.GradientType,
+                    startingHue,
+                    Config.GetSavedRandomGradient(),
+                    Config.RandomizeEachLine
+                );
+
+                bool isRandomWithReroll = Config.GradientType == GradientUtil.GradientType.Random
+                                          && Config.RandomizeEachLine;
+
+                if (isRandomWithReroll)
+                {
+                    Config.SetSavedRandomGradient(line.Gradient);
+                    MultiplayerManager.BroadcastGradient();
+                }
             }
 
             MultiplayerManager.BroadcastLineStart(startingHue);
@@ -130,6 +133,8 @@ public class GradientLinePatches
 
         private static void UpdateLocalPlayerLine(Line2D line, float hueOffset)
         {
+            if (Config.GradientType == GradientUtil.GradientType.None)
+                return;
             line.Gradient = GradientUtil.BuildGradient(
                 Config.GradientType, 
                 hueOffset, 

@@ -9,5 +9,15 @@
   "GRADIENTLINE-CUSTOM_COLORS.hover.desc": "Add up to 10 hex values with # in front (ex. #FFFFFF#FF0000)",
   "GRADIENTLINE-RANDOM_GRADIENT_SIZE.title": "Number of colors in random gradient",
   "GRADIENTLINE-RANDOMIZE_EACH_LINE.title": "Randomize new colors for every line",
-  "GRADIENTLINE-REROLL_RANDOM.title": "Reroll colors"
+  "GRADIENTLINE-REROLL_RANDOM.title": "Reroll colors",
+  "GRADIENTLINE-NUM_CUSTOM_COLORS.title": "Number of colors",
+  "GRADIENTLINE-CUSTOM_COLOR1.title": "Color 1",
+  "GRADIENTLINE-CUSTOM_COLOR2.title": "Color 2",
+  "GRADIENTLINE-CUSTOM_COLOR3.title": "Color 3",
+  "GRADIENTLINE-CUSTOM_COLOR4.title": "Color 4",
+  "GRADIENTLINE-CUSTOM_COLOR5.title": "Color 5",
+  "GRADIENTLINE-CUSTOM_COLOR6.title": "Color 6",
+  "GRADIENTLINE-CUSTOM_COLOR7.title": "Color 7",
+  "GRADIENTLINE-CUSTOM_COLOR8.title": "Color 8",
+  "PREVIEW.title": ""
 }
